@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Principal Chet</title>
+</head>
+<body>
+    <h3>Carga de archivos</h3>
+    <form method="POST" target="frame2" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="clientes" accept=".csv">
+        <input type="file" name="mejores_clientes" accept=".csv">
+        <input type="file" name="juegos" accept=".csv">
+        <input type="file" name="juegos_mas" accept=".csv">
+        <br>
+        <input type="submit" value="Revisar" formaction="/revisar" formmethod="POST" formtarget = "frame">
+<!--        <input type="submit" value="Procesar" formaction="http://localhost:5000/procesar" formmethod="POST" formtarget = "frame2">
+-->
+    </form>
+    <iframe src="" name="frame" frameborder="1"></iframe>
+    <br>
+    <iframe src="" name="frame2" frameborder="1"></iframe>
+</body>
+</html>
