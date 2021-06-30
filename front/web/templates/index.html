@@ -7,19 +7,28 @@
 </head>
 <body>
     <h3>Carga de archivos</h3>
-    <form method="POST" target="frame2" enctype="multipart/form-data">
+    <form method="POST"  enctype="multipart/form-data">
         {% csrf_token %}
+        <label for="clientes">Clientes</label>
         <input type="file" name="clientes" accept=".csv">
+        <label for="mejores_clientes">Mejores Clientes</label>
         <input type="file" name="mejores_clientes" accept=".csv">
+        <label for="juegos">Juegos</label>
         <input type="file" name="juegos" accept=".csv">
+        <br>
+        <label for="juegos_mas">Juegos Mas Comprados</label>
         <input type="file" name="juegos_mas" accept=".csv">
         <br>
-        <input type="submit" value="Revisar" formaction="/revisar" formmethod="POST" formtarget = "frame">
-<!--        <input type="submit" value="Procesar" formaction="http://localhost:5000/procesar" formmethod="POST" formtarget = "frame2">
--->
+        <input type="submit" value="Revisar" formaction="/revisar" formmethod="POST">
     </form>
-    <iframe src="" name="frame" frameborder="1"></iframe>
+    {{error}}
     <br>
-    <iframe src="" name="frame2" frameborder="1"></iframe>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <textarea name="mostrar_xml" id="" cols="30" rows="10">{{xml}}</textarea>
+        <input type="submit" value="Procesar" formaction="/procesar"> <!--formmethod="POST" formtarget = "frame2"-->
+
+    </form>
+    <br>
 </body>
 </html>

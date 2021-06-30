@@ -20,5 +20,6 @@ from web.views import *
 
 urlpatterns = [
     path('', index),
-    path('revisar',revisar)
+    path('revisar',revisar),
+    path('procesar', procesar)
 ]
