@@ -3,8 +3,7 @@ import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 
 #
-import matplotlib.pyplot as plt
-import numpy as np
+from . import graph
 #
 from . import objects
 
@@ -118,15 +117,18 @@ def juegosRepetidos(xml, tagPadre):
 
 def masVendidos(xml):
     tree = ET.fromstring(xml)
-    juegos = tree.find('juegosMasVendidos')
+    juegos = tree.find('juegos')
+    juegosMasVendidos = tree.find('juegosMasVendidos')
     copias = list()
-    nombres = list()
+    #lanzamientos = list()
+    nombres = list() 
 
     rootMasVendidos = ET.Element('juegosMasVendidos')
     
-    for juego in juegos:
+    for juego in juegosMasVendidos:
         nombre = juego.find('nombre').text
         copiasVendidas = juego.find('copiasVendidas').text
+        """ copiasVendidas = juego.find('copiasVendidas').text
         nombres.append(nombre)
         copias.append(copiasVendidas)
 
@@ -134,12 +136,27 @@ def masVendidos(xml):
         nodoNombre = ET.SubElement(nodoJuego, 'nombre')
         nodoNombre.text = nombre
         nodoCopias = ET.SubElement(nodoJuego, 'copiasVendidas')
-        nodoCopias.text = copiasVendidas
+        nodoCopias.text = copiasVendidas"""
+        for j in juegos:
+            if j.find('nombre').text == nombre:
+                nodoJuego = ET.SubElement(rootMasVendidos, 'juego')
+                
+                lanzamiento = j.find('lanzamiento').text
+                nodoLanzamiento = ET.SubElement(nodoJuego, 'lanzamiento')
+                nodoLanzamiento.text = lanzamiento
+                #lanzamientos.append(lanzamiento)
+
+                nodoCopias = ET.SubElement(nodoJuego, 'copiasVendidas')
+                nodoCopias.text = copiasVendidas
+                copias.append(copiasVendidas)
+
+                nodoNombre = ET.SubElement(nodoJuego, 'nombre')
+                nodoNombre.text = nombre
+                nombres.append(nombre + ' ' + lanzamiento)
+
 
     xmlMasV = ET.tostring(rootMasVendidos,encoding='utf-8', method='xml')
-    #plt.pie(copias, labels=nombres, labeldistance=1.15, rotatelabels=True)
-    #plt.savefig('test')
-    #[copias, nombres, ]
+    graph.pieGraph(copias, nombres, 'graficas/masVendidos')
     return clean(xmlMasV)
 
 def mejoresClientes(xml):
@@ -163,11 +180,7 @@ def mejoresClientes(xml):
         nodoGastos.text = cantidad
     xmlMejores = ET.tostring(rootMejores)
 
-    """ bars = np.arange(len(nombres))
-    plt.bar(bars, gastos)
-    plt.xticks(bars, nombres, rotation=90)
-    plt.subplots_adjust(bottom=0.3)
-    plt.savefig('testMejores') """
+    graph.barsGraph(gastos, nombres, 'graficas/mejoresClientes')
     return clean(xmlMejores)#[gastos, nombres]
 
 def clasificacion(xml):
@@ -188,12 +201,12 @@ def clasificacion(xml):
         nodoCant.text = str(clasificaciones.get(clasificacion))
     
     xmlClas = ET.tostring(rootClas)
-
     """ plt.pie(clasificaciones.values(), labels=clasificaciones.keys(), labeldistance=1.15)
     my_circle=plt.Circle( (0,0), 0.7, color='white')
     p=plt.gcf()
     p.gca().add_artist(my_circle)
-    plt.savefig('clasif') """
+    plt.savefig('front/web/static/graficas/calsificacion') """
+    graph.donutGraph(clasificaciones.values(), clasificaciones.keys(), 'graficas/clasificacion')
     return clean(xmlClas) #clasificaciones
     
 def cumple(xml):
@@ -216,7 +229,7 @@ def cumple(xml):
     xmlCumple = ET.tostring(rootCumple)
     #print(listado.keys())
     #print(listado.values())
-    return clean(xmlCumple) #listado
+    return [clean(xmlCumple), listado] #listado
 
 def juegos(xml):
     tree = ET.fromstring(xml)
@@ -238,4 +251,4 @@ def juegos(xml):
 
     xmlJuegos = ET.tostring(rootJuegos)
     
-    return clean(xmlJuegos) #listado   
+    return [clean(xmlJuegos), listado]   

@@ -30,5 +30,21 @@
     </form>
     <textarea name="xml_reportes" id="" cols="30" rows="10">{{xml_reportes}}</textarea>
     <br>
+    {% load static %}
+    <img src="{%static graph_mas%}" alt="Aquí verá una gráfica con sus juegos más vendidos" width="70%" height="70%" >
+    <img src="{%static graph_mejores%}" alt="Aquí verá una gráfica con sus mejores clients" width="70%" height="70%">
+    <img src="{%static graph_clas%}" alt="Aquí verá una gráfica con las clasificaciones" width="70%" height="70%">
+    <ul>
+        {% for cliente, fecha in list_cumples.items %}
+            <li> {{ cliente }} : {{ fecha }} </li>
+        {% endfor %}
+    </ul>
+    <ul>
+        {% for juego, stock in list_juegos.items %}
+            <li {% if stock < 10 %} style="color:red" {% endif %}> 
+                {{ juego }} : {{ stock }}
+            </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>

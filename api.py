@@ -21,16 +21,24 @@ def procesar():
     reportes += manager.masVendidos(xml)
     reportes += manager.mejoresClientes(xml)
     reportes += manager.clasificacion(xml)
-    reportes += manager.cumple(xml)
-    reportes += manager.juegos(xml)
+    fechasNac = manager.cumple(xml)
+    reportes += fechasNac[0]
+    juegos = manager.juegos(xml)
+    reportes += juegos[0]
 
     #reportes = manager.xmlFromString(reportes)
+
+    respuesta = {
+        'report' : reportes,
+        'cumples' : fechasNac[1],
+        'juegos' : juegos[1]
+    }
 
     file = open('reportes.xml', 'w')
     file.write(reportes)
     file.close()
 
-    return reportes
+    return respuesta
 
 @app.route('/revisar', methods=['POST'])
 def revisar():

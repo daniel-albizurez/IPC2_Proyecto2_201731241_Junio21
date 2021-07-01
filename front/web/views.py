@@ -3,6 +3,9 @@ from django.shortcuts import render
 import requests
 import re
 import csv
+import json
+
+from requests import api
 from . import objects
 from . import xmlManager
 # Create your views here.
@@ -145,13 +148,25 @@ def procesar(request):
     file = open('datos.xml', 'w')
     file.write(string)
     file.close() """
-    reportes = requests.post(url, {
+    respuesta = requests.post(url, {
             'mostrar_xml':xml,
-        })
+        }).json()
+
+    listaJuegos = respuesta.get('juegos')
+
+    for juego in listaJuegos:
+        listaJuegos[juego] = int(listaJuegos[juego])
+
     context = {
-        'xml_reportes' : reportes.text,
-        'xml' : xml
+        'xml_reportes' : respuesta.get('report'),
+        'xml' : xml,
+        'graph_mas' : 'graficas/masVendidos.png'    ,
+        'graph_mejores' : 'graficas/mejoresClientes.png',
+        'graph_clas' : 'graficas/clasificacion.png',
+        'list_cumples' : respuesta.get('cumples'),
+        'list_juegos' : listaJuegos,
     }
+    #"C:\Users\DANIEL\Documents\U\USAC\IPC2 Vaqueras\Practicas y proyectos\Proyecto 2\graficas\masVendidos.png"
     return render(request, 'index.html', context)
 
 
