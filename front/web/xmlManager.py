@@ -1,8 +1,15 @@
 from re import T
-import xml.dom.minidom
+import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 
+#
+import matplotlib.pyplot as plt
+import numpy as np
+#
 from . import objects
+
+def clean(xmlStruct):
+    return minidom.parseString(xmlStruct).toprettyxml()
 
 def writeFromCsv(clientes, mejores, masVendidos, juegos):
     root = ET.Element('chet')
@@ -62,13 +69,173 @@ def writeFromCsv(clientes, mejores, masVendidos, juegos):
         nodoStock = ET.SubElement(nodoMas, 'stock')
         nodoStock.text = x.stock
 
-
-    stringData = ET.tostring(root, encoding='utf-8', method='xml', xml_declaration=True)
-    dom = xml.dom.minidom.parseString(stringData)
+    stringData = juegosRepetidos(juegosRepetidos(mejoresRepetidos(ET.tostring(root, encoding='utf-8', method='xml')), 'juegos'), 'juegosMasVendidos')
+    dom = minidom.parseString(stringData)
     stringData = dom.toprettyxml()
     
     """ file = open("datos.xml", 'w')
     file.write(stringData)
     file.close() """
-
     return stringData
+
+def mejoresRepetidos(xml):
+    tree = ET.fromstring(xml)
+    conjunto = tree.find('mejoresClientes')
+    for cliente in conjunto:
+        nombre = cliente.find('nombre').text
+        comprada = int(cliente.find('cantidadComprada').text)
+        gastada = float(cliente.find('cantidadGastada').text) 
+        for cliente2 in conjunto:
+            if cliente2 != cliente:
+                if cliente2.find('nombre').text == nombre:
+                    comprada += int(cliente2.find('cantidadComprada').text)
+                    gastada += float(cliente2.find('cantidadGastada').text)
+                    conjunto.remove(cliente2)
+        cliente.find('cantidadComprada').text = str(comprada)
+        cliente.find('cantidadGastada').text = str(gastada) + '0'
+    return ET.tostring(tree)
+
+def juegosRepetidos(xml, tagPadre):
+    tree = ET.fromstring(xml)
+    conjunto = tree.find(tagPadre)
+    print(tagPadre)
+    for juego in conjunto:
+        nombre = juego.find('nombre').text
+        stock = int(juego.find('stock').text)
+        if tagPadre == 'juegosMasVendidos':
+            copias = int(juego.find('copiasVendidas').text) 
+        for juego2 in conjunto:
+            if juego2 != juego:
+                if juego2.find('nombre').text == nombre:
+                    stock += int(juego2.find('stock').text)
+                    if tagPadre == 'juegosMasVendidos':
+                        copias += int(juego2.find('copiasVendidas').text)
+                    conjunto.remove(juego2)
+        juego.find('stock').text = str(stock)
+        if tagPadre == 'juegosMasVendidos':
+            juego.find('copiasVendidas').text = str(copias)
+    return ET.tostring(tree)
+
+def masVendidos(xml):
+    tree = ET.fromstring(xml)
+    juegos = tree.find('juegosMasVendidos')
+    copias = list()
+    nombres = list()
+
+    rootMasVendidos = ET.Element('juegosMasVendidos')
+    
+    for juego in juegos:
+        nombre = juego.find('nombre').text
+        copiasVendidas = juego.find('copiasVendidas').text
+        nombres.append(nombre)
+        copias.append(copiasVendidas)
+
+        nodoJuego = ET.SubElement(rootMasVendidos, 'juego')
+        nodoNombre = ET.SubElement(nodoJuego, 'nombre')
+        nodoNombre.text = nombre
+        nodoCopias = ET.SubElement(nodoJuego, 'copiasVendidas')
+        nodoCopias.text = copiasVendidas
+
+    xmlMasV = ET.tostring(rootMasVendidos,encoding='utf-8', method='xml')
+    #plt.pie(copias, labels=nombres, labeldistance=1.15, rotatelabels=True)
+    #plt.savefig('test')
+    #[copias, nombres, ]
+    return clean(xmlMasV)
+
+def mejoresClientes(xml):
+    tree = ET.fromstring(xml)
+    clientes = tree.find('mejoresClientes')
+    gastos = list()
+    nombres = list()
+
+    rootMejores = ET.Element('mejoresClientes')
+
+    for cliente in clientes:
+        nombre = cliente.find('nombre').text
+        cantidad = cliente.find('cantidadGastada').text
+        nombres.append(nombre)
+        gastos.append(cantidad)
+
+        nodoCliente = ET.SubElement(rootMejores, 'cliente')
+        nodoNombre = ET.SubElement(nodoCliente, 'nombre')
+        nodoNombre.text = nombre
+        nodoGastos = ET.SubElement(nodoCliente, 'cantidadGastada')
+        nodoGastos.text = cantidad
+    xmlMejores = ET.tostring(rootMejores)
+
+    """ bars = np.arange(len(nombres))
+    plt.bar(bars, gastos)
+    plt.xticks(bars, nombres, rotation=90)
+    plt.subplots_adjust(bottom=0.3)
+    plt.savefig('testMejores') """
+    return clean(xmlMejores)#[gastos, nombres]
+
+def clasificacion(xml):
+    tree = ET.fromstring(xml)
+    juegos = tree.find('juegos')
+    clasificaciones = {}
+    for juego in juegos:
+        clasificacion = juego.find('clasificacion').text
+        if clasificacion in clasificaciones:
+            clasificaciones[clasificacion] += 1
+        else:
+            clasificaciones.update({clasificacion:1})
+    for clasificacion in clasificaciones.keys():
+        rootClas = ET.Element('clasificaciones')
+        nodoClas = ET.SubElement(rootClas, 'clasificacion')
+        nodoClas.text = clasificacion
+        nodoCant = ET.SubElement(rootClas, 'stock')
+        nodoCant.text = str(clasificaciones.get(clasificacion))
+    
+    xmlClas = ET.tostring(rootClas)
+
+    """ plt.pie(clasificaciones.values(), labels=clasificaciones.keys(), labeldistance=1.15)
+    my_circle=plt.Circle( (0,0), 0.7, color='white')
+    p=plt.gcf()
+    p.gca().add_artist(my_circle)
+    plt.savefig('clasif') """
+    return clean(xmlClas) #clasificaciones
+    
+def cumple(xml):
+    tree = ET.fromstring(xml)
+    clientes = tree.find('clientes')
+    listado = {}
+
+    rootCumple = ET.Element('cumple')
+
+    for cliente in clientes:
+        nombre = cliente.find('nombre').text
+        cumple = cliente.find('fechaCumple').text
+        listado.update({nombre:cumple})
+
+        nodoCliente = ET.SubElement(rootCumple, 'cliente')
+        nodoNombre = ET.SubElement(nodoCliente, 'nombre')
+        nodoNombre.text = nombre
+        nodoFecha = ET.SubElement(nodoCliente, 'fecha')
+        nodoFecha.text = cumple
+    xmlCumple = ET.tostring(rootCumple)
+    #print(listado.keys())
+    #print(listado.values())
+    return clean(xmlCumple) #listado
+
+def juegos(xml):
+    tree = ET.fromstring(xml)
+    juegos = tree.find('juegos')
+    listado = {}
+    
+    rootJuegos = ET.Element('juegos')
+
+    for juego in juegos:
+        nombre = juego.find('nombre').text
+        stock = juego.find('stock').text
+        listado.update({nombre:stock})
+
+        nodoJuego = ET.SubElement(rootJuegos, 'juego')
+        nodoNombre = ET.SubElement(nodoJuego, 'nombre')
+        nodoNombre.text = nombre
+        nodoStock = ET.SubElement(nodoJuego, 'stock')
+        nodoStock.text = stock
+
+    xmlJuegos = ET.tostring(rootJuegos)
+    
+    return clean(xmlJuegos) #listado   

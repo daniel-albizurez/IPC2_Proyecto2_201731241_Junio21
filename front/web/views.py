@@ -90,8 +90,10 @@ def revisar(request):
                 plataforma = row['Plataforma']
                 lanzamiento = row['AñoLanzamiento']
                 clasificacion = row['Clasificacion']
+                stock = '1' if 'Stock' not in row else row['Stock']
+                stock = '1' if not stock else stock
                 if validarCadena(patronAnual, lanzamiento) and validarCadena(patronClasificacion, clasificacion):
-                    juego = objects.Juego(nombre, plataforma, lanzamiento, clasificacion, "1")
+                    juego = objects.Juego(nombre, plataforma, lanzamiento, clasificacion, stock)
                     juegos.append(juego)
                     line += 1
                 else:
@@ -137,11 +139,20 @@ def revisar(request):
     return render(request, 'index.html', context)
 
 def procesar(request):
-    string = str(request.POST.get('mostrar_xml'))
+    url = api_dir.format('/procesarXml')
+    xml = str(request.POST.get('mostrar_xml'))
+    """string = str(xml)
     file = open('datos.xml', 'w')
     file.write(string)
-    file.close()
-    return render(request, 'index.html')
+    file.close() """
+    reportes = requests.post(url, {
+            'mostrar_xml':xml,
+        })
+    context = {
+        'xml_reportes' : reportes.text,
+        'xml' : xml
+    }
+    return render(request, 'index.html', context)
 
 
 patronNombre ="^([A-Z]([A-Z]|[a-z]|á|é|í|ó|ú)+($| ))+"

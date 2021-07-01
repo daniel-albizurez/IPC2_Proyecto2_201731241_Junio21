@@ -27,8 +27,8 @@
         {% csrf_token %}
         <textarea name="mostrar_xml" id="" cols="30" rows="10">{{xml}}</textarea>
         <input type="submit" value="Procesar" formaction="/procesar"> <!--formmethod="POST" formtarget = "frame2"-->
-
     </form>
+    <textarea name="xml_reportes" id="" cols="30" rows="10">{{xml_reportes}}</textarea>
     <br>
 </body>
 </html>
