@@ -1,3 +1,4 @@
+
 from re import T
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
@@ -76,6 +77,9 @@ def writeFromCsv(clientes, mejores, masVendidos, juegos):
     file.write(stringData)
     file.close() """
     return stringData
+
+def checkStruct(struct):
+    tree = ET.fromstring(struct)
 
 def mejoresRepetidos(xml):
     tree = ET.fromstring(xml)
@@ -227,6 +231,7 @@ def cumple(xml):
         nodoFecha = ET.SubElement(nodoCliente, 'fecha')
         nodoFecha.text = cumple
     xmlCumple = ET.tostring(rootCumple)
+    #listado = dict(sorted(listado.items(), key=lambda item : datetime.strptime(item[1], '%d/%m/%Y').month))
     #print(listado.keys())
     #print(listado.values())
     return [clean(xmlCumple), listado] #listado

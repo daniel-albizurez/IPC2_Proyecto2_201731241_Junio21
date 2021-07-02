@@ -4,47 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Principal Chet</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> 
 </head>
 <body>
-    <h3>Carga de archivos</h3>
-    <form method="POST"  enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="clientes">Clientes</label>
-        <input type="file" name="clientes" accept=".csv">
-        <label for="mejores_clientes">Mejores Clientes</label>
-        <input type="file" name="mejores_clientes" accept=".csv">
-        <label for="juegos">Juegos</label>
-        <input type="file" name="juegos" accept=".csv">
-        <br>
-        <label for="juegos_mas">Juegos Mas Comprados</label>
-        <input type="file" name="juegos_mas" accept=".csv">
-        <br>
-        <input type="submit" value="Revisar" formaction="/revisar" formmethod="POST">
-    </form>
-    {{error}}
-    <br>
-    <form action="" method="POST">
-        {% csrf_token %}
-        <textarea name="mostrar_xml" id="" cols="30" rows="10">{{xml}}</textarea>
-        <input type="submit" value="Procesar" formaction="/procesar"> <!--formmethod="POST" formtarget = "frame2"-->
-    </form>
-    <textarea name="xml_reportes" id="" cols="30" rows="10">{{xml_reportes}}</textarea>
-    <br>
-    {% load static %}
-    <img src="{%static graph_mas%}" alt="Aquí verá una gráfica con sus juegos más vendidos" width="70%" height="70%" >
-    <img src="{%static graph_mejores%}" alt="Aquí verá una gráfica con sus mejores clients" width="70%" height="70%">
-    <img src="{%static graph_clas%}" alt="Aquí verá una gráfica con las clasificaciones" width="70%" height="70%">
-    <ul>
-        {% for cliente, fecha in list_cumples.items %}
+    {% if list_cumples %}
+    <div class="w3-sidebar w3-bar-block" style="width: 25%;">
+        <h4>Lista de cumpleaños</h4>
+        <ul class = "w3-ul">
+            {% for cliente, fecha in list_cumples.items %}
             <li> {{ cliente }} : {{ fecha }} </li>
-        {% endfor %}
-    </ul>
-    <ul>
-        {% for juego, stock in list_juegos.items %}
-            <li {% if stock < 10 %} style="color:red" {% endif %}> 
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    {%if list_juegos %}
+    <div class="w3-sidebar w3-bar-block" style="width: 25%;right: 0;">
+        <h4>Stock de juegos</h4>
+        <ul  class = "w3-ul">
+            {% for juego, stock in list_juegos.items %}
+            <li {% if stock < 10 %} class="w3-red" {% endif %}> 
                 {{ juego }} : {{ stock }}
             </li>
-        {% endfor %}
-    </ul>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div style="margin-left: 25%; margin-right: 25%;">
+        <div>
+            <h3>Carga de archivos</h3>
+            <form class="w3-container" method="POST"  enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="clientes">Clientes</label>
+                <input class="w3-input" type="file" name="clientes" accept=".csv">
+                <label for="mejores_clientes">Mejores Clientes</label>
+                <input class="w3-input" type="file" name="mejores_clientes" accept=".csv">
+                <label for="juegos">Juegos</label>
+                <input class="w3-input" type="file" name="juegos" accept=".csv">
+                <br>
+                <label for="juegos_mas">Juegos Mas Comprados</label>
+                <input class="w3-input" type="file" name="juegos_mas" accept=".csv">
+                <br>
+                <input class="w3-button w3-round w3-black w3-hover-grey" type="submit" value="Revisar" formaction="/revisar" formmethod="POST">
+            </form>
+        </div>
+        <div>
+            <h3>{{error}}</h3>
+        </div>
+        <br>
+        <div>
+        <h2>Información contenida en los CSV</h2>
+        <form class="w3-container" method="POST">
+            {% csrf_token %}
+            <textarea class="w3-input" name="mostrar_xml" id="" cols="30" rows="10">{{xml}}</textarea>
+            <input class="w3-button w3-round w3-black w3-hover-grey w3-block" type="submit" value="Procesar" formaction="/procesar"> <!--formmethod="POST" formtarget = "frame2"-->
+        </form>
+        <h2>Información de los reportes</h2>
+        <textarea disabled class="w3-input" name="xml_reportes" id="" cols="30" rows="10">{{xml_reportes}}</textarea>
+        </div>
+        <br>
+        {% load static %}
+        <div class = "w3-container">
+            <div class="w3-card">
+                <img src="{%static graph_mas%}" alt="Aquí verá una gráfica con sus juegos más vendidos" style="width: 100%; height: 100%;">
+            </div>
+            <br>
+            <div class="w3-card">
+                <img src="{%static graph_mejores%}" alt="Aquí verá una gráfica con sus mejores clients" style="width: 100%; height: 100%;" >
+            </div>
+            <br>
+            <div class="w3-card">
+                <img src="{%static graph_clas%}" alt="Aquí verá una gráfica con las clasificaciones" style="width: 100%; height: 100%;" >
+            </div>
+        </div>
+    
+    </div>
+    
 </body>
 </html>

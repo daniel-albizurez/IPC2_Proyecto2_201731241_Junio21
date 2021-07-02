@@ -13,6 +13,10 @@ cors = CORS(app, resources={r"/*": {"origin":"*"}})
 def procesar():
     xml = request.form.get('mostrar_xml')
     string = str(xml)
+    try:
+        manager.checkStruct(xml)
+    except:
+         return {'error' : 'Se econtraron modificaciones erroneas en el xml por favor corregirlas'}
     datos = open('datos.xml', 'w')
     datos.write(string)
     datos.close()
@@ -25,7 +29,7 @@ def procesar():
     reportes += fechasNac[0]
     juegos = manager.juegos(xml)
     reportes += juegos[0]
-
+    
     #reportes = manager.xmlFromString(reportes)
 
     respuesta = {

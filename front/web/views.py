@@ -3,7 +3,7 @@ from django.shortcuts import render
 import requests
 import re
 import csv
-import json
+from datetime import datetime
 
 from requests import api
 from . import objects
@@ -152,10 +152,16 @@ def procesar(request):
             'mostrar_xml':xml,
         }).json()
 
+    if 'error' in respuesta:
+        return render(request, 'index.html', {'error':respuesta['error']})
+
     listaJuegos = respuesta.get('juegos')
 
     for juego in listaJuegos:
         listaJuegos[juego] = int(listaJuegos[juego])
+
+    listado = respuesta.get('cumples')
+    cumples = dict(sorted(listado.items(), key=lambda item : datetime.strptime(item[1], '%d/%m/%Y').month))
 
     context = {
         'xml_reportes' : respuesta.get('report'),
@@ -163,7 +169,7 @@ def procesar(request):
         'graph_mas' : 'graficas/masVendidos.png'    ,
         'graph_mejores' : 'graficas/mejoresClientes.png',
         'graph_clas' : 'graficas/clasificacion.png',
-        'list_cumples' : respuesta.get('cumples'),
+        'list_cumples' : cumples,
         'list_juegos' : listaJuegos,
     }
     #"C:\Users\DANIEL\Documents\U\USAC\IPC2 Vaqueras\Practicas y proyectos\Proyecto 2\graficas\masVendidos.png"
